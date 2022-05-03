@@ -1,0 +1,40 @@
+[tool.poetry]
+name="robotframework-poetry-demo"
+version = "1.0.0"
+description = "A demo project showing how to set up a distributable Robot Framework project."
+license = "Apache-2.0"
+authors = ["Robin Mackaij <r.a.mackaij@gmail.com>"]
+readme =  "./docs/README.md"
+homepage = "https://github.com/MarketSquare/robotframework-poetry-demo"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Software Development :: Testing :: Acceptance",
+    "Framework :: Robot Framework",
+]
+packages = [
+    { include = "RobotFrameworkResources", from = "src" },
+]
+include = ["*.resource"]
+
+[[tool.poetry.source]]
+name = 'private'
+url = 'http://example.com/simple'
+
+[tool.poetry.dependencies]
+python = "^3.8"
+robotframework = ">=4"
+robotframework-browser = "^12.1.0"
+"ruamel.yaml" = "0.17"
+robotframework-openapidriver = "^3.1.0"
+
+[tool.poetry.dev-dependencies]
+invoke = "*"
+robotframework-stacktrace = "*"
+robotframework-tidy = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
