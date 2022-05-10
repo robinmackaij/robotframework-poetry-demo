@@ -34,6 +34,7 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 ```
+
 ### The `[tool.poetry]` section
 In this section, we can find some general information about the project / package.
 The `name`, `description` and `authors` tell us what the package is for and who
@@ -74,13 +75,80 @@ file using `poetry new` or `poetry init`.
 Unless you have a reason to change it (and then you'll know why), we can just leave
 this as is.
 
-## Using `poetry` commands
+## The basic `poetry` commands
+There are many `poetry` commands (full documentation can be found
+[here](https://python-poetry.org/docs/cli/)).
+To get started with `poetry`, the most important ones are the following ones:
+*   `install <package>`: If you're working in a repo with either a `pyproject.toml`
+or `poetry.lock` file in it, this will install all the dependencies and the
+project itself.
+*   `add <package>`: To add a package to your project.
+This is the equivalent of `pip install` but with one major difference:
+After you `add` a package, `poetry` will first check that all packages and their
+dependencies that are in the project are compatible with each other.
+This means that `poetry` will try to find a combination of package versions that
+satisfies all the version requirements / restrictions of all packages in the project.
+If such a combination is found, `poetry` generate / update the `poetry.lock` file
+file that "pins" these exact versions.
+*   `remove <package>`: Remove a package from your project. This is similar
+to `pip uninstall` but with an important difference: dependencies of the removed
+package that are no longer referenced will also be removed.
+After this is done, the `poetry.lock` file is updated.
+*   `update [<package>]`: Updates a package (if provided) or all packages in the
+project and their dependencies to the highest versions that satisfies the version
+requirements of all packages in the project.
+After resolving the dependencies, the `poetry.lock` file is updated.
+*   `show`: Similar to `pip list`, `poetry show` will show which packages and their
+version that are installed in the active (virtual) environment.
+The optional `--tree` flag is interesting here: instead of a flat list of installed
+packages, the dependencies tree of the installed packages is shown.
+This can give you insight in what packages are used "under water" and which packages
+are depended on by multiple packages in the project.
 
 ## Building and distributing a Robot Framework resources package
+In addition to managing the dependencies of a repo / project, `poetry` also supports
+building and publishing projects.
+When you run the `poetry build` command, `poetry` will create a `wheel` (`.whl`) and
+a `sdist` (`.tar.gz`) file in the `/dist` folder in the project root.
+These files can be used to install the project package in another environment or to
+distribute the package using a tracker such as pypi.
+
+### Publishing using a tracker
+To distribute the package through a tracker, the `poetry publish` command is used.
+Using this command will prompt for a (pypi) user name and password.
+
+If the package is an internal package that should not be publicly available, pypi is
+not the tracker that should be used but an organisation may have its own internal
+tracker available.
+You can configure such an internal (private) tracker in the `pyproject.toml` file:
+```
+[[tool.poetry.source]]
+name = 'private'
+url = 'http://example.com/simple'
+```
+To publish to such a tracker, use the `poetry publish -r private` command.
+
+In addition, you can add the following classifier to the `[tool.poetry]` section:
+```
+classifiers = [
+    "Private :: Do Not Upload",
+]
+```
+Adding a classifier with `Private ::` will prevent accidental uploads to pypi.
+
+### Publishing on GitHub
+Another way to distribute a package that's build from a GitHub repo is to create a
+release on GitHub and upload the `.whl` and `.tar.gz` files.
+Doing this will make the package available to be added in another repo:
+`poetry add git+https://github.com/robinmackaij/robotframework-poetry-demo.git`
+
+If the repo being published is a private repo, only those with access to the repo can
+add the package to their own project.
 
 ## Using a Robot Framework resource distribution in a test project
 
-## `pyproject.toml` and tool settings
+
+## The `pyproject.toml` and tool settings
 
 ## The `[tool.poetry.dev-dependencies]` section and `invoke`
 
