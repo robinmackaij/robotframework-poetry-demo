@@ -121,7 +121,7 @@ If the package is an internal package that should not be publicly available, pyp
 not the tracker that should be used but an organisation may have its own internal
 tracker available.
 You can configure such an internal (private) tracker in the `pyproject.toml` file:
-```
+```toml
 [[tool.poetry.source]]
 name = 'private'
 url = 'http://example.com/simple'
@@ -129,7 +129,7 @@ url = 'http://example.com/simple'
 To publish to such a tracker, use the `poetry publish -r private` command.
 
 In addition, you can add the following classifier to the `[tool.poetry]` section:
-```
+```toml
 classifiers = [
     "Private :: Do Not Upload",
 ]
@@ -146,7 +146,23 @@ If the repo being published is a private repo, only those with access to the rep
 add the package to their own project.
 
 ## Using a Robot Framework resource distribution in a test project
+After a Robot Framework resource package how been published and added to a repo
+its Keywords and / or Variables can be used by importing them in the `*** Settings ***`:
+```robotframework
+*** Settings ***
+Resource    RobotFrameworkResources/keywords/Web.resource
 
+*** Test Cases ***
+Can open website
+    Open main site
+```
+In this example project, `/keywords/Web.resource` imports `/variables/Urls.resource` so
+the variables in `Urls.resource` are also available.
+
+> Currently imports have to use the full path starting from the package name (in this
+example `RobotFrameworkResources`).
+There is currently an [enhancement proposal](https://github.com/robotframework/robotframework/issues/4317) to allow for a more user-friendly syntax
+to import Robot Framework resources in a test suite.
 
 ## The `pyproject.toml` and tool settings
 
