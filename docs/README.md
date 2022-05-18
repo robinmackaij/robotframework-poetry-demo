@@ -172,7 +172,7 @@ If `poetry` is available on an agent, installing the dependencies and running th
 poetry install --no-dev --remove-untracked
 
 # run the suite(s)
-poetry run robot --variable ROOT:${WORKSPACE} ${WORKSPACE}/Suites/"
+poetry run robot --variable ROOT:${WORKSPACE} ${WORKSPACE}/Suites/
 ```
 > The `--removed-untracked` flag is mostly a precaution.
 This will remove all packages from the (virtual) environment that are not in the `poetry.lock` file.
