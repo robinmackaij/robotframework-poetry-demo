@@ -230,4 +230,25 @@ The only thing that is really needed is that the required Python version for run
 the repo is present on the target machine / host / Jenkins node (which can be a Docker
 container).
 While it is not advisable to use `pip install poetry` for local development, this is
-not normally a problem on CI/CD machines.
+not normally a problem on CI/CD machines since the agents are often already isolated
+and / or not persistent.
+
+Adding `poetry` to a Python-based Docker image is straightforward:
+```dockerfile
+# Install poetry into the default Python install
+RUN find / -name pip
+RUN pip install poetry
+```
+
+If `poetry` is available on an agent, installing the dependencies and running the
+Robot Framework suites is also simple:
+```bash
+# install the dependencies
+poetry install --no-dev --remove-untracked
+
+# run the suite(s)
+poetry run robot --variable ROOT:${WORKSPACE} ${WORKSPACE}/Suites/"
+```
+> The `--removed-untracked` flag is mostly a precaution.
+This will remove all packages from the (virtual) environment that are not in the
+`poetry.lock` file.
