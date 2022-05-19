@@ -117,9 +117,6 @@ Can open website
 ```
 In this example project, `/keywords/Web.resource` imports `/variables/Urls.resource` so the variables in `Urls.resource` are also available.
 
-> Currently imports have to use the full path starting from the package name (in this example `RobotFrameworkResources`).
-There is currently an [enhancement proposal](https://github.com/robotframework/robotframework/issues/4317) to allow for a more user-friendly syntax to import Robot Framework resources in a test suite.
-
 ## The `[tool.poetry.dev-dependencies]` section and `invoke`
 In addition to the `[tool.poetry.dependencies]` section, `poetry` also supports the `[tool.poetry.dev-dependencies]` section that can be used to define which supporting packages can (or should) be used when working on the project.
 Packages typically found in this section are tools to increase code quality (e.g. `black`, `mypy`, `tidy`, `robocop`) and to run the tests for the project and measure code coverage (e.g. `pytest`, `coverage`, `robotframework`).
