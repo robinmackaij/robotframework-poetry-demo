@@ -12,7 +12,6 @@ ROOT = pathlib.Path(__file__).parent.resolve().as_posix()
 def tests(context):
     cmd = [
         "python",
-        "run",
         "-m",
         "robot",
         f"--variable=root:{ROOT}",
