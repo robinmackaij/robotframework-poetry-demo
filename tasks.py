@@ -4,7 +4,6 @@ import subprocess
 
 from invoke import task
 
-
 ROOT = pathlib.Path(__file__).parent.resolve().as_posix()
 
 
@@ -12,7 +11,6 @@ ROOT = pathlib.Path(__file__).parent.resolve().as_posix()
 def tests(context):
     cmd = [
         "python",
-        "run",
         "-m",
         "robot",
         f"--variable=root:{ROOT}",
@@ -26,7 +24,11 @@ def tests(context):
 @task
 def lint(context):
     subprocess.run(f"mypy {ROOT}", shell=True, check=False)
-    subprocess.run(f"pylint {ROOT}/src/OpenApiDriver", shell=True, check=False)
+    subprocess.run(
+        f"pylint {ROOT}/flat/Flat {ROOT}/nested/Nested {ROOT}/split/Global {ROOT}/split/Shop {ROOT}/split/UserGuide",
+        shell=True,
+        check=False,
+    )
     subprocess.run(f"robocop {ROOT}", shell=True, check=False)
 
 

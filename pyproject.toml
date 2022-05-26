@@ -1,6 +1,6 @@
 [tool.poetry]
 name="robotframework-poetry-demo"
-version = "1.0.0"
+version = "1.1.0"
 description = "A demo project showing how to set up a distributable Robot Framework project."
 license = "Apache-2.0"
 authors = ["Robin Mackaij <r.a.mackaij@gmail.com>"]
@@ -13,9 +13,14 @@ classifiers = [
     "Topic :: Software Development :: Testing",
     "Topic :: Software Development :: Testing :: Acceptance",
     "Framework :: Robot Framework",
+    "Private :: Not intended to be uploaded to pypi",
 ]
 packages = [
-    { include = "RobotFrameworkResources", from = "src" },
+    {include = "Flat", from = "flat"},
+    {include = "Nested", from = "nested"},
+    {include = "Global", from = "split"},
+    {include = "Shop", from = "split"},
+    {include = "UserGuide", from = "split"},
 ]
 include = ["*.resource"]
 
@@ -25,15 +30,16 @@ url = 'http://example.com/simple'
 
 [tool.poetry.dependencies]
 python = "^3.8"
-robotframework = ">=4"
-robotframework-browser = "^12.1.0"
-"ruamel.yaml" = "0.17"
-robotframework-openapidriver = "^3.1.0"
+robotframework = ">=5"
 
 [tool.poetry.dev-dependencies]
-invoke = "*"
-robotframework-stacktrace = "*"
-robotframework-tidy = "*"
+robotframework-tidy = "^2.3"
+robotframework-robocop = "^2.0.2"
+invoke = "^1.7.1"
+mypy = "^0.960"
+pylint = "^2.13.9"
+black = "^22.3.0"
+isort = "^5.10.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

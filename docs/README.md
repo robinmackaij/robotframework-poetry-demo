@@ -5,6 +5,7 @@ This repo demonstrates how poetry can be used to distribute Robot Framework reso
 The cornerstone for `poetry` is the `pyproject.toml` file.
 This file holds the information needed to ensure a suitable Python version is used when creating the virtual environment for the repo, which dependencies should be installed in that virtual environment, etc.
 It also provides the information needed when you want to build and distribute the code in the repo; things like the version number, the author(s) and / or maintainers, a description of the project, etc.
+> The install instructions for poetry can be found [here](https://python-poetry.org/docs/master/#installation)
 
 ## A minimal `pyproject.toml` file
 Let's take a look at a (close to) minimal `pyproject.toml` file:
@@ -39,6 +40,10 @@ If you use `poetry` to manage the environment and dependencies of your Robot Fra
 The `packages`, like `version`, may not be used but it is required and it's a good idea to think of a proper (folder) structure for your repo even if you don't distribute it.
 In this example, the `src` (short for source) folder holds the `RobotFrameworkResources` package to be included in the distribution.
 But even if you don't need to distribute your project, it's a good idea to have a folder at the root of the repo that makes it clear where the main content of your repo can be found to separate that from supporting files such as configuration files (e.g. `pyproject.toml` and `poetry.lock`) and documentation (e.g. `README.md`).
+
+> Note that this repo does not use a `src` folder but instead demonstrates three different ways of how you could structure your repo.
+> The `flat` structure is the most basic, while `nested` and `split` are increasingly complex.
+> Refer to the `pyproject.toml` of the repo to see how to include these different ways of organizing the project into a distribution.
 
 The `include` is not part of a minimum `pyproject.toml` configuration but I've included it here since we'll need to define it if we want to make a Robot Framework Resource distribution.
 By default only Python files (e.g. `.py` and related extensions) are included when building a distribution.
@@ -109,13 +114,15 @@ If the repo being published is a private repo, only those with access to the rep
 After a Robot Framework resource package how been published and added to a repo, its Keywords and / or Variables can be used by importing them in the `*** Settings ***`:
 ```robotframework
 *** Settings ***
-Resource    RobotFrameworkResources/keywords/Web.resource
+Resource    Flat/Keywords.resource
 
 *** Test Cases ***
-Can open website
-    Open main site
+Can Get Url
+    ${url}=    Get Main Site Url
 ```
-In this example project, `/keywords/Web.resource` imports `/variables/Urls.resource` so the variables in `Urls.resource` are also available.
+In this example project, `Keywords.resource` imports `Variables.resource` so the variables are also available.
+
+> For examples for the different repo structures, refer to the test suites in the `tests` folder.
 
 ## The `[tool.poetry.dev-dependencies]` section and `invoke`
 In addition to the `[tool.poetry.dependencies]` section, `poetry` also supports the `[tool.poetry.dev-dependencies]` section that can be used to define which supporting packages can (or should) be used when working on the project.
@@ -173,3 +180,5 @@ poetry run robot --variable ROOT:${WORKSPACE} ${WORKSPACE}/Suites/
 ```
 > The `--removed-untracked` flag is mostly a precaution.
 This will remove all packages from the (virtual) environment that are not in the `poetry.lock` file.
+
+----

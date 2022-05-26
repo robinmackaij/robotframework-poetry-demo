@@ -11,4 +11,4 @@ dist/
 .vscode
 
 # log files
-/logs
+logs
