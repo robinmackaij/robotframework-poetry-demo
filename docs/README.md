@@ -106,7 +106,7 @@ Adding a classifier with `Private ::` will prevent accidental uploads to pypi.
 ### Publishing on GitHub
 Another way to distribute a package that's build from a GitHub repo is to create a release on GitHub and upload the `.whl` and `.tar.gz` files.
 Doing this will make the package available to be added in another repo:
-`poetry add git+https://github.com/robinmackaij/robotframework-poetry-demo.git`
+`poetry add git+https://github.com/robinmackaij/robotframework-poetry-demo.git#main`
 
 If the repo being published is a private repo, only those with access to the repo can add the package to their own project.
 
