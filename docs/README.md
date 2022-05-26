@@ -7,6 +7,13 @@ This file holds the information needed to ensure a suitable Python version is us
 It also provides the information needed when you want to build and distribute the code in the repo; things like the version number, the author(s) and / or maintainers, a description of the project, etc.
 > The install instructions for poetry can be found [here](https://python-poetry.org/docs/master/#installation)
 
+> Tip: when `poetry` has been installed, you can configure it to create the virtual environment for repos in the repo itself (instead of somewhere in the user data).
+> This makes it easier to inspect the content of the `.venv` or delete the `.venv` (for example to update the Python version used).
+> The command to do this is the following:
+> ```
+> poetry config virtualenvs.in-project true
+> ```
+
 ## A minimal `pyproject.toml` file
 Let's take a look at a (close to) minimal `pyproject.toml` file:
 ```toml
