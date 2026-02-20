@@ -1,13 +1,18 @@
-# Robot Framework poetry demo
-This repo demonstrates how poetry can be used to distribute Robot Framework resources between repos and also show some tips and tricks that can help you in managing your Robot Framework projects.
+# Robot Framework packaging demo
+This repo demonstrates how tools like uv or poetry can be used to distribute Robot Framework resources between repos and also show some tips and tricks that can help you in managing your Robot Framework projects.
 
-## `poetry` and the `pyproject.toml` file
-The cornerstone for `poetry` is the `pyproject.toml` file.
+## The `pyproject.toml` file
+The cornerstone for distributing the Robot Framework resources is the `pyproject.toml` file.
 This file holds the information needed to ensure a suitable Python version is used when creating the virtual environment for the repo, which dependencies should be installed in that virtual environment, etc.
 It also provides the information needed when you want to build and distribute the code in the repo; things like the version number, the author(s) and / or maintainers, a description of the project, etc.
-> The install instructions for poetry can be found [here](https://python-poetry.org/docs/master/#installation)
 
-> Tip: when `poetry` has been installed, you can configure it to create the virtual environment for repos in the repo itself (instead of somewhere in the user data).
+There are a number of tools you can choose from to install and / or build the project but the essence is the same.
+If you're not already using a certain tool, I would suggest either `uv` or `poetry`.
+> The install instructions for `uv` can be found [here](https://docs.astral.sh/uv/getting-started/installation/)
+
+> The install instructions for `poetry` can be found [here](https://python-poetry.org/docs/#installation)
+
+> Tip: when `poetry` has been installed, you can configure it to create the virtual environment for repos in the repo itself (instead of somewhere in the user data). Note that `uv` does this by default.
 > This makes it easier to inspect the content of the `.venv` or delete the `.venv` (for example to update the Python version used).
 > The command to do this is the following:
 > ```
@@ -15,94 +20,116 @@ It also provides the information needed when you want to build and distribute th
 > ```
 
 ## A minimal `pyproject.toml` file
-Let's take a look at a (close to) minimal `pyproject.toml` file:
+> All the information about the `pyproject.toml` can be found [here](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#writing-your-pyproject-toml)
+
+Let's take a look at a (close to) minimal `pyproject.toml` file.
+
 ```toml
-[tool.poetry]
-name="the name of the package"
-version = "1.0.0"
-description = "a short description of the package"
-authors = ["name of the author <email of the author>"]
-packages = [
-    { include = "RobotFrameworkResources", from = "src" },
-]
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.sdist]
 include = ["*.resource"]
 
-[tool.poetry.dependencies]
-python = "^3.8"
-robotframework = ">=4"
+[tool.hatch.build.targets.wheel]
+packages = ["src/RobotFrameworkResources"]
 
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[project]
+name = "name-of-the-package"
+version = "1.0.0"
+description = "a short description of the package"
+readme =  "README.md"
+authors = [{name = "name of the author", email = "email address"}]
+requires-python = ">= 3.10"
+dependencies = [
+    "robotframework>=7.0.0",
+]
+
+[tool.poetry]
+packages = [
+    {include = "RobotFrameworkResources", from = "src"},
+]
 
 ```
 
-### The `[tool.poetry]` section
-In this section, we can find some general information about the project / package.
-The `name`, `description` and `authors` tell us what the package is for and who wrote it.
+### The `[build-system]` section
+The build-system is responsible for creating a distribution that can be used by other repos.
+Both `uv` and `poetry` have their own build-system that could be used, but both tools can work with `hatchling`.
+You can read more about this [here](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#declaring-the-build-backend)
 
-The `version` is used is used by tools like `pip` (and `poetry`!) when checking for updates of the `dependencies` of a project.
-If you use `poetry` to manage the environment and dependencies of your Robot Framework tests, the `version` is not used directly.
+### The `[tool.hatch.build.targets.sdist]` and `[tool.hatch.build.targets.wheel]` sections
+These sections are specific for `hatch`/`hatchling` and define what part of the repo is meant to be distributed and what files / file types should be included in the distribution.
+You can find more information [here](https://hatch.pypa.io/latest/config/build/#build-system)
+If you use a different build system, consult the appropriate documentation for the details.
 
-The `packages`, like `version`, may not be used but it is required and it's a good idea to think of a proper (folder) structure for your repo even if you don't distribute it.
+> The main point of attention here is the inclusion of `*.resource` files since those are not regular Python files that most build backend will include by default.
+
+The `packages` defines which folders are part of the distribution and it's a good idea to think of a proper (folder) structure for your repo even if you don't distribute it.
 In this example, the `src` (short for source) folder holds the `RobotFrameworkResources` package to be included in the distribution.
-But even if you don't need to distribute your project, it's a good idea to have a folder at the root of the repo that makes it clear where the main content of your repo can be found to separate that from supporting files such as configuration files (e.g. `pyproject.toml` and `poetry.lock`) and documentation (e.g. `README.md`).
+Even if you don't need to distribute your project, it's a good idea to have a folder at the root of the repo that makes it clear where the main content of your repo can be found to separate that from supporting files such as configuration files (e.g. `pyproject.toml`, `.gitignore`, etc.) and documentation (e.g. `README.md`).
 
 > Note that this repo does not use a `src` folder but instead demonstrates three different ways of how you could structure your repo.
 > The `flat` structure is the most basic, while `nested` and `split` are increasingly complex.
-> Refer to the `pyproject.toml` of the repo to see how to include these different ways of organizing the project into a distribution.
+> Refer to the `pyproject.toml` of this repo to see how to include these different ways of organizing the project into a distribution.
 
-The `include` is not part of a minimum `pyproject.toml` configuration but I've included it here since we'll need to define it if we want to make a Robot Framework Resource distribution.
-By default only Python files (e.g. `.py` and related extensions) are included when building a distribution.
-To include files with other extensions, such as `.resource` or `.robot`, we need to specify them.
+### The `[project]` section
+In this section, we can find some general information about the project / package.
+The `name`, `description`, `authors` and `readme` tell us what the package is for and who wrote it.
 
-### The `[tool.poetry.dependencies]` section
-This section defines two things:
-*   The Python version(s) required to use the repo.
-*   The packages / libraries and their acceptable version that are needed by the code in the package.
+The `version` is used is used by tools like `pip`, `poetry` and `uv` when checking for updates of the `dependencies` of a project.
 
-### The `[build-system]` section
-The section as shown is automatically generated if you create a new `pyproject.toml` file using `poetry new` or `poetry init`.
-Unless you have a reason to change it (and then you'll know why) you can just leave this as is.
+The `requires-python` field determines the supported Python versions for the distribution.
 
-## The basic `poetry` commands
-There are many `poetry` commands (full documentation can be found [here](https://python-poetry.org/docs/cli/)).
-To get started with `poetry`, the most important ones are the following ones:
+Finally the `dependencies` defines the packages (libraries) and their acceptable version that are needed by the code in the package.
 
-*   `install <package>`: If you're working in a repo with either a `pyproject.toml` or `poetry.lock` file in it, this will install all the dependencies and the project itself.
-*   `add <package>`: To add a package to your project.
+### The `[tool.poetry]` section
+While `uv` supports the `[tool.hatch.build]` sections to read the package structure, `poetry` does not (at the time of writing) and needs a tool-specific section to make the package (locally) installable.
+Depending on the exact tools you use for your project, you may find / need other `[tool.abc]` sections in the `pyproject.toml`.
+
+## The basic `uv` and `poetry` commands
+There are many `uv`/`poetry` commands but the most important ones are very similar.
+
+*  `uv sync`/`poetry install`: If you're working in a repo with either a `pyproject.toml` or `uv.lock`/`poetry.lock` file in it, this will install all the dependencies and the project itself.
+*   `uv/poetry add <package>`: To add a package to your project.
     This is the equivalent of `pip install` but with one major difference:
-    After you `add` a package, `poetry` will first check that all packages and their dependencies that are in the project are compatible with each other.
-    This means that `poetry` will try to find a combination of package versions that satisfies all the version requirements / restrictions of all packages in the project.
-    If such a combination is found, `poetry` generate / update the `poetry.lock` file file that "pins" these exact versions.
+    After you `add` a package, `uv`/`poetry` will first check that all packages and their dependencies that are in the project are compatible with each other.
+    This means that `uv`/`poetry` will try to find a combination of package versions that satisfies all the version requirements / restrictions of all packages in the project.
+    If such a combination is found, `uv`/`poetry` generate / update the `uv.lock`/`poetry.lock` file file that "pins" these exact versions.
 *   `remove <package>`: Remove a package from your project.
     This is similar to `pip uninstall` but with an important difference: dependencies of the removed package that are no longer referenced will also be removed.
-    After this is done, the `poetry.lock` file is updated.
-*   `update [<package>]`: Updates a package (if provided) or all packages in the project and their dependencies to the highest versions that satisfies the version requirements of all packages in the project.
-    After resolving the dependencies, the `poetry.lock` file is updated.
-*   `show`: Similar to `pip list`, `poetry show` will show which packages and their version that are installed in the active (virtual) environment.
-    The optional `--tree` flag is interesting here: instead of a flat list of installed packages, the dependencies tree of the installed packages is shown.
+    After this is done, the lock file is updated.
+*   `uv lock --upgrade`/`uv lock --upgrade-package <package>`/`poetry update [<package>]`: Updates a package (if provided) or all packages in the project and their dependencies to the highest versions that satisfies the version requirements of all packages in the project.
+    After resolving the dependencies, the lock file is updated.
+*   `uv tree`/`poetry show --tree`: Similar to `pip list`, this will show which packages and their version that are installed in the active (virtual) environment.
+    Instead of a flat list of installed packages, the dependencies tree of the installed packages is shown.
     This can give you insight in what packages are used "under the hood" and which packages are used by multiple packages in the project.
 
 ## Building and distributing a package
-In addition to managing the dependencies of a repo / project, `poetry` also supports building and publishing projects.
-When you run the `poetry build` command, `poetry` will create a `wheel` (`.whl`) and a `sdist` (`.tar.gz`) file in the `/dist` folder in the project root.
+In addition to managing the dependencies of a repo / project, `uv`/`poetry` also supports building and publishing projects.
+When you run the `uv/poetry build` command, `uv`/`poetry` will create a `wheel` (`.whl`) and a `sdist` (`.tar.gz`) file in the `/dist` folder in the project root.
 These files can be used to install the project package in another environment or to distribute the package using a tracker such as pypi.
 
 ### Publishing using a tracker
-To distribute the package through a tracker, the `poetry publish` command is used.
-Using this command will prompt for a (pypi) user name and password.
+To distribute the package through a tracker, the `uv/poetry publish` command is used.
+Using this command will (by default) prompt for a (pypi) user name and password.
 
 If the package is an internal package that should not be publicly available, pypi is not the tracker that should be used but an organisation may have its own internal tracker available.
 You can configure such an internal (private) tracker in the `pyproject.toml` file:
 ```toml
-[[tool.poetry.source]]
-name = 'private'
-url = 'http://example.com/simple'
-```
-To publish to such a tracker, use the `poetry publish -r private` command.
+[[tool.uv.index]]
+name = "private"
+url = "http://example.com/simple"
+publish-url = "http://example.com/simple"
+explicit = true
 
-In addition, you can add the following classifier to the `[tool.poetry]` section:
+[[tool.poetry.source]]
+name = "private"
+url = "http://example.com/simple"
+```
+To publish to such a tracker, use the `uv publish --index private`/`poetry publish -r private` command.
+
+In addition, you can add the following classifier to the `[project]` section:
 ```toml
 classifiers = [
     "Private :: Do Not Upload",
@@ -133,9 +160,10 @@ In this example project, `Keywords.resource` imports `Variables.resource` so the
 
 > For examples for the different repo structures, refer to the test suites in the `tests` folder.
 
-## The `[tool.poetry.dev-dependencies]` section and `invoke`
-In addition to the `[tool.poetry.dependencies]` section, `poetry` also supports the `[tool.poetry.dev-dependencies]` section that can be used to define which supporting packages can (or should) be used when working on the project.
+## The `[dependency-groups]` section and `invoke`
+In addition to the `dependencies` in the `[project]` section, there is also supports for the  `[dependency-groups]` section that can be used to define which supporting packages can (or should) be used when working on the project.
 Packages typically found in this section are tools to increase code quality (e.g. `black`, `mypy`, `tidy`, `robocop`) and to run the tests for the project and measure code coverage (e.g. `pytest`, `coverage`, `robotframework`).
+More information on this can be found [here](https://packaging.python.org/en/latest/specifications/dependency-groups/)
 
 Another interesting package I'd like to highlight here is `invoke`.
 This is a package that is used to run tasks from the `tasks.py` from the shell.
@@ -153,41 +181,23 @@ If you're working with an IDE that automatically runs your shell command in the 
 ```shell
 (.venv) PS path\to\repo\root>inv tests
 ```
-> Note: If the `pyproject.toml` and `tasks` are both in the repo root and the virtual environment of the repo is not activated, running `poetry run inv <task>` will still execute the task within the virtual environment of the repo.
+> Note: If the `pyproject.toml` and `tasks` are both in the repo root and the virtual environment of the repo is not activated, running `uv/poetry run inv <task>` will still execute the task within the virtual environment of the repo.
 
 ## The `pyproject.toml` and tool settings
 In addition to managing a (Python) project, the `pyproject.toml` file also serves another purpose:
 More and more (developer) tools in the Python eco-system now support the `pyproject.toml` file as source for their settings.
 
-This complements the `[tool.poetry.dev-dependencies]` (that defines which development tools should be used when working on the repo) by also storing the configuration that should be used by those tools.
+This complements the `[dependency-groups]` (that defines which development tools should be used when working on the repo) by also storing the configuration that should be used by those tools.
 
 Among those tools are Python linters and formatters like `black`, `isort`, `mypy` and `pylint`.
 When it comes to Robot Framework, we have `tidy` and `robocop` that can read their configuration from the `pyproject.toml`.
 How exactly the entries for a certain tool should look, can normally be found in the documentation for the particular tool.
 I've added a selection of tool configurations that I commonly use within repos to the `pyproject.toml` in this repo.
 
-## Using `poetry` with Docker and / or Jenkins
-The great benefit from using `poetry` in a repo is that is ensures that "if it works on my machine, it works on your machine".
+## Using `uv`/`poetry` with Docker and / or Jenkins
+The great benefit from using `uv`/`poetry` in a repo is that is ensures that "if it works on my machine, it works on your machine".
 This benefit can easily be carried over to CI/CD environments.
 The only thing that is really needed is that the required Python version for running the repo is present on the target machine / host / Jenkins node (which can be a Docker container).
-While it is not advisable to use `pip install poetry` for local development, this is not normally a problem on CI/CD machines since the agents are often already isolated and / or not persistent.
-
-Adding `poetry` to a Python-based Docker image is straightforward:
-```dockerfile
-# Install poetry into the default Python install
-RUN find / -name pip
-RUN pip install poetry
-```
-
-If `poetry` is available on an agent, installing the dependencies and running the Robot Framework suites is also simple:
-```bash
-# install the dependencies
-poetry install --no-dev --remove-untracked
-
-# run the suite(s)
-poetry run robot --variable ROOT:${WORKSPACE} ${WORKSPACE}/Suites/
-```
-> The `--removed-untracked` flag is mostly a precaution.
-This will remove all packages from the (virtual) environment that are not in the `poetry.lock` file.
+While it is not advisable to use `pip install uv/poetry` for local development, this is not normally a problem on CI/CD machines since the agents are often already isolated and / or not persistent.
 
 ----
